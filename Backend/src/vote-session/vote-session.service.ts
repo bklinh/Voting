@@ -30,6 +30,7 @@ export class VoteSessionService {
         candidates: true,
         votes: true,
         voteParticipants: true,
+        signer: true,
       },
     });
   }
@@ -66,6 +67,28 @@ export class VoteSessionService {
           candidates: true,
           votes: true,
           voteParticipants: true,
+          signer: true,
+        },
+      });
+    } catch (error) {
+      throw new NotFoundException('Vote session not found');
+    }
+  }
+
+  async getVoteSessionBySignerId(signer: Supervisor): Promise<VoteSession[]> {
+    if (!signer) {
+      throw new BadRequestException('Not enough data provided');
+    }
+    try {
+      return this.prismaService.voteSession.findMany({
+        where: {
+          signerId: signer.id,
+        },
+        include: {
+          candidates: true,
+          votes: true,
+          voteParticipants: true,
+          signer: true,
         },
       });
     } catch (error) {
@@ -113,6 +136,7 @@ export class VoteSessionService {
         where: { id },
       });
     } catch (error) {
+      console.error(error);
       throw new BadRequestException('Error deleting vote session');
     }
   }
